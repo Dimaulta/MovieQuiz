@@ -29,6 +29,9 @@ final class MovieQuizViewController: UIViewController {
     }
     
     private func showAnswerResult(isCorrect: Bool) {
+        noButton.isEnabled = false
+        yesButton.isEnabled = false
+        
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
         imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
@@ -53,6 +56,10 @@ final class MovieQuizViewController: UIViewController {
             let nextQuestion = questions[currentQuestionIndex]
             let viewModel = convert(model: nextQuestion)
             show(quiz: viewModel)
+            
+            noButton.isEnabled = true
+            yesButton.isEnabled = true
+            
         } else {
             let alert = UIAlertController(
                 title: "Раунд окончен!",
@@ -83,6 +90,9 @@ final class MovieQuizViewController: UIViewController {
         setupNoButton()
         setupYesButton()
         setupLabels()
+        
+        imageView.layer.cornerRadius = 20
+        imageView.layer.masksToBounds = true
         
         let firstQuestion = questions[currentQuestionIndex]
         let viewModel = convert(model: firstQuestion)
