@@ -7,8 +7,6 @@
 
 import UIKit
 
-
-
 class QuestionFactory: QuestionFactoryProtocol {
    
     weak var delegate: QuestionFactoryDelegate?
