@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class StatisticService {
+final class StatisticService: StatisticServiceProtocol {
     private let storage: UserDefaults = .standard
     
     private enum Keys: String {
@@ -19,7 +19,7 @@ final class StatisticService {
         case bestGameDate
     }
     
-  
+    
     var gamesCount: Int {
         get {
             storage.integer(forKey: Keys.gamesCount.rawValue)
@@ -29,14 +29,14 @@ final class StatisticService {
         }
     }
     
-  
+    
     var totalAccuracy: Double {
         let totalCorrect = storage.integer(forKey: Keys.totalCorrect.rawValue)
         let totalQuestions = storage.integer(forKey: Keys.totalQuestions.rawValue)
         return totalQuestions == 0 ? 0.0 : (Double(totalCorrect) / Double(totalQuestions)) * 100
     }
     
-   
+    
     var bestGame: GameResult {
         get {
             let correct = storage.integer(forKey: Keys.bestGameCorrect.rawValue)
@@ -51,7 +51,7 @@ final class StatisticService {
         }
     }
     
-  
+    
     func store(correct count: Int, total amount: Int) {
         
         let currentTotalCorrect = storage.integer(forKey: Keys.totalCorrect.rawValue)
@@ -62,7 +62,7 @@ final class StatisticService {
         
         gamesCount += 1
         
-       
+        
         let currentGame = GameResult(correct: count, total: amount, date: Date())
         if currentGame.isBetterThan(bestGame) {
             bestGame = currentGame
@@ -70,6 +70,3 @@ final class StatisticService {
     }
 }
 
-extension StatisticService: StatisticServiceProtocol {
- 
-}
