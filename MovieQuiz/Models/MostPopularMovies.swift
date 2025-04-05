@@ -5,7 +5,7 @@
 //  Created by Ульта on 25.03.2025.
 //
 
-import UIKit
+import Foundation
 
 struct MostPopularMovies: Codable {
     let errorMessage: String
@@ -23,5 +23,3 @@ struct MostPopularMovie: Codable {
         case imageURL = "image"
     }
 }
-
-
