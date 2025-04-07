@@ -35,7 +35,6 @@ final class MovieQuizUITests: XCTestCase {
         app.buttons["Yes"].tap()
         sleep(5)
         
-        
         let secondPoster = app.images["Poster"]
         let secondPosterData = secondPoster.screenshot().pngRepresentation
         
@@ -62,33 +61,25 @@ final class MovieQuizUITests: XCTestCase {
         XCTAssertEqual(indexLabel.label, "2/10")
     }
     
-    
-    
-    
     func testGameFinish() {
         sleep(2)
         for _ in 1...10 {
             app.buttons["No"].tap()
             sleep(2)
         }
-
-        // Выводим все доступные алёрты для отладки
+        
         for alert in app.alerts.allElementsBoundByIndex {
             print("Alert found: \(alert.label)")
         }
         
-        // Пытаемся найти алёрт с текстом "Раунд окончен!"
         let alert = app.alerts["Раунд окончен!"]
         
-        // Ждем немного дольше для появления алёрта
         sleep(10)
         
-        // Проверяем его существование и нужные свойства
         XCTAssertTrue(alert.exists, "Алерт не найден!")
-        XCTAssertTrue(alert.label == "Раунд окончен!", "Неверный текст алёрта!")
+        XCTAssertTrue(alert.label == "Раунд окончен!", "Неверный текст алерта!")
         XCTAssertTrue(alert.buttons.firstMatch.label == "Сыграть ещё раз", "Неверная надпись на кнопке!")
     }
-
     
     func testAlertDismiss() {
         sleep(2)
@@ -103,12 +94,8 @@ final class MovieQuizUITests: XCTestCase {
         sleep(2)
         
         let indexLabel = app.staticTexts["Index"]
-        
+        sleep(10)
         XCTAssertFalse(alert.exists)
         XCTAssertTrue(indexLabel.label == "1/10")
     }
-    
-    
-    
-    
 }
