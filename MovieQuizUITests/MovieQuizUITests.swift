@@ -37,7 +37,7 @@ final class MovieQuizUITests: XCTestCase {
         
         let secondPoster = app.images["Poster"]
         let secondPosterData = secondPoster.screenshot().pngRepresentation
-        
+        sleep(2) // вот это помогает пройти тесты при запуске от класса
         XCTAssertNotEqual(firstPosterData, secondPosterData)
         XCTAssertEqual(indexLabel.label, "2/10")
     }
@@ -77,8 +77,8 @@ final class MovieQuizUITests: XCTestCase {
         sleep(10)
         
         XCTAssertTrue(alert.exists, "Алерт не найден!")
-        XCTAssertTrue(alert.label == "Раунд окончен!", "Неверный текст алерта!")
-        XCTAssertTrue(alert.buttons.firstMatch.label == "Сыграть ещё раз", "Неверная надпись на кнопке!")
+        XCTAssertTrue(alert.label == "Раунд окончен!")
+        XCTAssertTrue(alert.buttons.firstMatch.label == "Сыграть ещё раз")
     }
     
     func testAlertDismiss() {
@@ -94,8 +94,9 @@ final class MovieQuizUITests: XCTestCase {
         sleep(2)
         
         let indexLabel = app.staticTexts["Index"]
-        sleep(10)
+        
         XCTAssertFalse(alert.exists)
         XCTAssertTrue(indexLabel.label == "1/10")
     }
+
 }
