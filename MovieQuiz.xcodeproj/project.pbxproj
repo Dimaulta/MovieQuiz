@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		334B8FBF2DA65BAC00C83DD1 /* MovieQuizPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 334B8FBE2DA65BA400C83DD1 /* MovieQuizPresenter.swift */; };
 		335523262D6869ED00B8247D /* YS Display-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 335523242D6869ED00B8247D /* YS Display-Bold.ttf */; };
 		335523272D6869ED00B8247D /* YS Display-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 335523252D6869ED00B8247D /* YS Display-Medium.ttf */; };
 		3359C4C82D9296720071AC3D /* NetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3359C4C72D92966E0071AC3D /* NetworkClient.swift */; };
@@ -53,6 +54,7 @@
 
 /* Begin PBXFileReference section */
 		334660BE2D9F3636001442DB /* MovieQuizTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MovieQuizTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		334B8FBE2DA65BA400C83DD1 /* MovieQuizPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieQuizPresenter.swift; sourceTree = "<group>"; };
 		335380932DA298F200735253 /* MovieQuizUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MovieQuizUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		335523242D6869ED00B8247D /* YS Display-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "YS Display-Bold.ttf"; sourceTree = "<group>"; };
 		335523252D6869ED00B8247D /* YS Display-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "YS Display-Medium.ttf"; sourceTree = "<group>"; };
@@ -143,6 +145,7 @@
 		8F4738322848DE2A005DF65E /* Presentation */ = {
 			isa = PBXGroup;
 			children = (
+				334B8FBE2DA65BA400C83DD1 /* MovieQuizPresenter.swift */,
 				336FD7B72D82BA6600EDA152 /* AlertPresenter.swift */,
 				AD1ABAB52831907B00B3E448 /* MovieQuizViewController.swift */,
 				AD1ABAB72831907B00B3E448 /* Main.storyboard */,
@@ -377,6 +380,7 @@
 				33A4BCE92D7C3AF600517A0C /* QuizStepViewModel.swift in Sources */,
 				33A4BCED2D7C3B2000517A0C /* QuizQuestion.swift in Sources */,
 				336FD7B82D82BA6D00EDA152 /* AlertPresenter.swift in Sources */,
+				334B8FBF2DA65BAC00C83DD1 /* MovieQuizPresenter.swift in Sources */,
 				336FD7CC2D82DB6200EDA152 /* StatisticServiceProtocol.swift in Sources */,
 				33A4BCE72D7C36DC00517A0C /* QuestionFactory.swift in Sources */,
 				AD77F5742857F8810062FB14 /* Date+Extensions.swift in Sources */,
