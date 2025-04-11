@@ -12,12 +12,14 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     var currentQuestion: QuizQuestion?
     weak var viewController: MovieQuizViewController?
     private var questionFactory: QuestionFactoryProtocol?
+    private let statisticService: StatisticServiceProtocol
     private let questionsAmount: Int = 10
     private var currentQuestionIndex: Int = 0
     var correctAnswers: Int = 0
     
     init(viewController: MovieQuizViewController) {
         self.viewController = viewController
+        self.statisticService = StatisticService()
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         questionFactory?.loadData()
         viewController.showLoadingIndicator()
@@ -67,12 +69,14 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     }
     
     func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question = question else { return }
+        guard let question = question else {
+            print("No question received")
+            return
+        }
         currentQuestion = question
         let viewModel = convert(model: question)
         DispatchQueue.main.async { [weak self] in
             self?.viewController?.show(quiz: viewModel)
-            // Включаем кнопки после получения нового вопроса
             self?.viewController?.yesButton.isEnabled = true
             self?.viewController?.noButton.isEnabled = true
         }
@@ -85,6 +89,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     }
     
     func didLoadDataFromServer() {
+        print("Data loaded successfully")
         viewController?.hideLoadingIndicator()
         questionFactory?.requestNextQuestion()
     }
@@ -94,35 +99,43 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         viewController?.showNetworkError(message: message)
     }
     
+    func makeResultsMessage() -> String {
+        statisticService.store(correct: correctAnswers, total: questionsAmount)
+        
+        let bestGame = statisticService.bestGame
+        
+        let totalPlaysCountLine = "Количество сыгранных квизов: \(statisticService.gamesCount)"
+        let currentGameResultLine = "Ваш результат: \(correctAnswers)/\(questionsAmount)"
+        let bestGameInfoLine = "Рекорд: \(bestGame.correct)/\(bestGame.total) (\(bestGame.date.dateTimeString))"
+        let averageAccuracyLine = "Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%"
+        
+        let resultMessage = [
+            currentGameResultLine,
+            totalPlaysCountLine,
+            bestGameInfoLine,
+            averageAccuracyLine
+        ].joined(separator: "\n")
+        
+        return resultMessage
+    }
+    
     func showNextQuestionOrResults() {
         guard let viewController = viewController else { return }
         viewController.imageView.layer.borderWidth = 0
 
-        // Проверяем, не закончились ли вопросы
         if currentQuestionIndex < questionsAmount - 1 {
             updateQuestionIndex()
             questionFactory?.requestNextQuestion()
         } else {
-            viewController.statisticService?.store(correct: correctAnswers, total: questionsAmount)
-
-            let message = """
-            Ваш результат: \(correctAnswers) из \(questionsAmount)
-            Количество сыгранных квизов: \(viewController.statisticService?.gamesCount ?? 0)
-            Рекорд: \(viewController.statisticService?.bestGame.correct ?? 0)/\(viewController.statisticService?.bestGame.total ?? 0) (\(viewController.statisticService?.bestGame.date.dateTimeString ?? ""))
-            Средняя точность: \(String(format: "%.2f", viewController.statisticService?.totalAccuracy ?? 0))%
-            """
-
+            let message = makeResultsMessage()
+            
             let alertModel = AlertModel(
                 title: "Раунд окончен!",
                 message: message,
                 buttonText: "Сыграть ещё раз",
                 completion: { [weak self] in
-                    guard let self = self,
-                          let vc = self.viewController else { return }
+                    guard let self = self else { return }
                     self.restartGame()
-                    // Включаем кнопки для следующей игры
-                    vc.noButton.isEnabled = true
-                    vc.yesButton.isEnabled = true
                     self.questionFactory?.requestNextQuestion()
                 }
             )
