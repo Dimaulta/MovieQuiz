@@ -2,10 +2,10 @@ import UIKit
 
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
-    @IBOutlet private var noButton: UIButton!
-    @IBOutlet private var yesButton: UIButton!
+    @IBOutlet var noButton: UIButton!
+    @IBOutlet var yesButton: UIButton!
     
-    @IBOutlet private var imageView: UIImageView!
+    @IBOutlet var imageView: UIImageView!
     @IBOutlet private var textLabel: UILabel!
     @IBOutlet private var counterLabel: UILabel!
     
@@ -13,11 +13,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     @IBOutlet private var activityIndicator: UIActivityIndicatorView!
     
-    private var questionFactory: QuestionFactoryProtocol?
-    private var alertPresenter: AlertPresenter?
+    var questionFactory: QuestionFactoryProtocol?
+    var alertPresenter: AlertPresenter?
     private var currentQuestion: QuizQuestion?
     private var correctAnswers = 0
-    private var statisticService: StatisticServiceProtocol?
+    var statisticService: StatisticServiceProtocol?
     
     private let presenter = MovieQuizPresenter()
     
@@ -38,6 +38,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         showLoadingIndicator()
         questionFactory?.loadData()
+        
+        // Включаем кнопки при старте
+        yesButton.isEnabled = true
+        noButton.isEnabled = true
     }
     
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
@@ -85,8 +89,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     func showAnswerResult(isCorrect: Bool) {
-        noButton.isEnabled = false
-        yesButton.isEnabled = false
+//        noButton.isEnabled = false
+//        yesButton.isEnabled = false
         
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
@@ -98,45 +102,46 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else { return }
-            self.showNextQuestionOrResults()
+            self.presenter.showNextQuestionOrResults()
         }
     }
     
-    private func showNextQuestionOrResults() {
-        imageView.layer.borderWidth = 0
-        
-        // Исправлено условие для завершения игры
-        if presenter.getCurrentQuestionIndex() < presenter.getTotalQuestionsAmount() - 1 {
-            presenter.updateQuestionIndex()
-            questionFactory?.requestNextQuestion()
-            noButton.isEnabled = true
-            yesButton.isEnabled = true
-        } else {
-            statisticService?.store(correct: correctAnswers, total: presenter.getTotalQuestionsAmount())
-            
-            let message = """
-                        Ваш результат: \(correctAnswers) из \(presenter.getTotalQuestionsAmount())
-                        Количество сыгранных квизов: \(statisticService?.gamesCount ?? 0)
-                        Рекорд: \(statisticService?.bestGame.correct ?? 0)/\(statisticService?.bestGame.total ?? 0) (\(statisticService?.bestGame.date.dateTimeString ?? ""))
-                        Средняя точность: \(String(format: "%.2f", statisticService?.totalAccuracy ?? 0))%
-                        """
-            
-            let alertModel = AlertModel(
-                title: "Раунд окончен!",
-                message: message,
-                buttonText: "Сыграть ещё раз",
-                completion: { [weak self] in
-                    guard let self = self else { return }
-                    self.presenter.resetQuestionIndex()
-                    self.correctAnswers = 0
-                    self.noButton.isEnabled = true
-                    self.yesButton.isEnabled = true
-                    self.questionFactory?.requestNextQuestion()
-                }
-            )
-            alertPresenter?.showAlert(model: alertModel)
-        }
-    }
+//    private func showNextQuestionOrResults() {
+//        imageView.layer.borderWidth = 0
+//
+//        // Исправлено условие для завершения игры
+//        if presenter.getCurrentQuestionIndex() < presenter.getTotalQuestionsAmount() - 1 {
+//            presenter.updateQuestionIndex()
+//            questionFactory?.requestNextQuestion()
+//
+//            noButton.isEnabled = true
+//            yesButton.isEnabled = true
+//        } else {
+//            statisticService?.store(correct: correctAnswers, total: presenter.getTotalQuestionsAmount())
+//
+//            let message = """
+//                        Ваш результат: \(correctAnswers) из \(presenter.getTotalQuestionsAmount())
+//                        Количество сыгранных квизов: \(statisticService?.gamesCount ?? 0)
+//                        Рекорд: \(statisticService?.bestGame.correct ?? 0)/\(statisticService?.bestGame.total ?? 0) (\(statisticService?.bestGame.date.dateTimeString ?? ""))
+//                        Средняя точность: \(String(format: "%.2f", statisticService?.totalAccuracy ?? 0))%
+//                        """
+//
+//            let alertModel = AlertModel(
+//                title: "Раунд окончен!",
+//                message: message,
+//                buttonText: "Сыграть ещё раз",
+//                completion: { [weak self] in
+//                    guard let self = self else { return }
+//                    self.presenter.resetQuestionIndex()
+//                    self.correctAnswers = 0
+//                    self.noButton.isEnabled = true
+//                    self.yesButton.isEnabled = true
+//                    self.questionFactory?.requestNextQuestion()
+//                }
+//            )
+//            alertPresenter?.showAlert(model: alertModel)
+//        }
+//    }
     
     // тут был viewDidLoad
     
@@ -145,8 +150,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         guard let question = question else { return }
         currentQuestion = question
         let viewModel = presenter.convert(model: question)
+        
         DispatchQueue.main.async { [weak self] in
             self?.show(quiz: viewModel)
+            // Включаем кнопки здесь
+            self?.yesButton.isEnabled = true
+            self?.noButton.isEnabled = true
         }
     }
     
@@ -175,7 +184,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         yesButton.layer.cornerRadius = 15
     }
     
-    private func show(quiz step: QuizStepViewModel) {
+    func show(quiz step: QuizStepViewModel) {
         imageView.image = step.image
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
