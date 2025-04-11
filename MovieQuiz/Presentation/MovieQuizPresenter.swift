@@ -37,4 +37,19 @@ final class MovieQuizPresenter {
     func getCurrentQuestionIndex() -> Int {
         return currentQuestionIndex
     }
+    
+    var currentQuestion: QuizQuestion?
+    weak var viewController: MovieQuizViewController?
+    
+    func yesButtonClicked() {
+        guard let currentQuestion = currentQuestion else { return }
+        let givenAnswer = true
+        viewController?.showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+    }
+    
+    func noButtonClicked() {
+        guard let currentQuestion = currentQuestion else { return }
+        let givenAnswer = false
+        viewController?.showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+    }
 }

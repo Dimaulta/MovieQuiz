@@ -18,19 +18,36 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var currentQuestion: QuizQuestion?
     private var correctAnswers = 0
     private var statisticService: StatisticServiceProtocol?
- 
+    
     private let presenter = MovieQuizPresenter()
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        presenter.viewController = self
+        
+        setupNoButton()
+        setupYesButton()
+        setupLabels()
+        
+        alertPresenter = AlertPresenter(viewController: self)
+        statisticService = StatisticService()
+        
+        imageView.layer.cornerRadius = 20
+        imageView.layer.masksToBounds = true
+        
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        showLoadingIndicator()
+        questionFactory?.loadData()
+    }
+    
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        guard let currentQuestion = currentQuestion else { return }
-        let givenAnswer = true
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        presenter.currentQuestion = currentQuestion
+        presenter.yesButtonClicked()
     }
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
-        guard let currentQuestion = currentQuestion else { return }
-        let givenAnswer = false
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        presenter.currentQuestion = currentQuestion
+        presenter.noButtonClicked()
     }
     
     private func showLoadingIndicator() {
@@ -67,7 +84,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         questionFactory?.requestNextQuestion()
     }
     
-    private func showAnswerResult(isCorrect: Bool) {
+    func showAnswerResult(isCorrect: Bool) {
         noButton.isEnabled = false
         yesButton.isEnabled = false
         
@@ -96,7 +113,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             yesButton.isEnabled = true
         } else {
             statisticService?.store(correct: correctAnswers, total: presenter.getTotalQuestionsAmount())
-
+            
             let message = """
                         Ваш результат: \(correctAnswers) из \(presenter.getTotalQuestionsAmount())
                         Количество сыгранных квизов: \(statisticService?.gamesCount ?? 0)
@@ -121,22 +138,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupNoButton()
-        setupYesButton()
-        setupLabels()
-        
-        alertPresenter = AlertPresenter(viewController: self)
-        statisticService = StatisticService()
-        
-        imageView.layer.cornerRadius = 20
-        imageView.layer.masksToBounds = true
-        
-        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
-        showLoadingIndicator()
-        questionFactory?.loadData()
-    }
+    // тут был viewDidLoad
     
     // MARK: - QuestionFactoryDelegate
     func didReceiveNextQuestion(question: QuizQuestion?) {
