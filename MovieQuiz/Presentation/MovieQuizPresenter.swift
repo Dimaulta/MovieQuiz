@@ -7,13 +7,21 @@
 
 import UIKit
 
-final class MovieQuizPresenter {
+final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     var currentQuestion: QuizQuestion?
     weak var viewController: MovieQuizViewController?
+    private var questionFactory: QuestionFactoryProtocol?
     private let questionsAmount: Int = 10
     private var currentQuestionIndex: Int = 0
     var correctAnswers: Int = 0
+    
+    init(viewController: MovieQuizViewController) {
+        self.viewController = viewController
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        questionFactory?.loadData()
+        viewController.showLoadingIndicator()
+    }
     
     func convert(model: QuizQuestion) -> QuizStepViewModel {
         return QuizStepViewModel(
@@ -27,8 +35,10 @@ final class MovieQuizPresenter {
         currentQuestionIndex += 1
     }
     
-    func resetQuestionIndex() {
+    func restartGame() {
         currentQuestionIndex = 0
+        correctAnswers = 0
+        questionFactory?.requestNextQuestion()
     }
     
     func getTotalQuestionsAmount() -> Int {
@@ -47,23 +57,41 @@ final class MovieQuizPresenter {
         didAnswer(isYes: false)
     }
     
-    private func didAnswer(isYes: Bool) {
+    func didAnswer(isYes: Bool) {
         guard let currentQuestion = currentQuestion else { return }
-        let givenAnswer = isYes
-        viewController?.showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        let isCorrect = isYes == currentQuestion.correctAnswer
+        if isCorrect {
+            correctAnswers += 1
+        }
+        viewController?.showAnswerResult(isCorrect: isCorrect)
     }
     
     func didReceiveNextQuestion(question: QuizQuestion?) {
         guard let question = question else { return }
         currentQuestion = question
         let viewModel = convert(model: question)
-        
-        // Убираем активацию кнопок здесь
-     //   guard let viewController = viewController else { return }
-        
         DispatchQueue.main.async { [weak self] in
             self?.viewController?.show(quiz: viewModel)
+            // Включаем кнопки после получения нового вопроса
+            self?.viewController?.yesButton.isEnabled = true
+            self?.viewController?.noButton.isEnabled = true
         }
+    }
+    
+    func loadData() {
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        viewController?.showLoadingIndicator()
+        questionFactory?.loadData()
+    }
+    
+    func didLoadDataFromServer() {
+        viewController?.hideLoadingIndicator()
+        questionFactory?.requestNextQuestion()
+    }
+    
+    func didFailToLoadData(with error: Error) {
+        let message = error.localizedDescription
+        viewController?.showNetworkError(message: message)
     }
     
     func showNextQuestionOrResults() {
@@ -73,7 +101,7 @@ final class MovieQuizPresenter {
         // Проверяем, не закончились ли вопросы
         if currentQuestionIndex < questionsAmount - 1 {
             updateQuestionIndex()
-            viewController.questionFactory?.requestNextQuestion()
+            questionFactory?.requestNextQuestion()
         } else {
             viewController.statisticService?.store(correct: correctAnswers, total: questionsAmount)
 
@@ -91,12 +119,11 @@ final class MovieQuizPresenter {
                 completion: { [weak self] in
                     guard let self = self,
                           let vc = self.viewController else { return }
-                    self.resetQuestionIndex()
-                    self.correctAnswers = 0
+                    self.restartGame()
                     // Включаем кнопки для следующей игры
                     vc.noButton.isEnabled = true
                     vc.yesButton.isEnabled = true
-                    vc.questionFactory?.requestNextQuestion()
+                    self.questionFactory?.requestNextQuestion()
                 }
             )
             viewController.alertPresenter?.showAlert(model: alertModel)
