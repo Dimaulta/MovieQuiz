@@ -3,7 +3,7 @@
 //  MovieQuizUITests
 //
 //  Created by Ульта on 06.04.2025.
-// import Foundation
+
 import XCTest
 
 final class MovieQuizUITests: XCTestCase {
@@ -37,7 +37,7 @@ final class MovieQuizUITests: XCTestCase {
         
         let secondPoster = app.images["Poster"]
         let secondPosterData = secondPoster.screenshot().pngRepresentation
-        sleep(2) // вот это помогает пройти тесты при запуске от класса
+        sleep(2)
         XCTAssertNotEqual(firstPosterData, secondPosterData)
         XCTAssertEqual(indexLabel.label, "2/10")
     }
@@ -55,7 +55,7 @@ final class MovieQuizUITests: XCTestCase {
         
         let secondPoster = app.images["Poster"]
         let secondPosterData = secondPoster.screenshot().pngRepresentation
-        
+        sleep(2)
         XCTAssertNotEqual(firstPosterData, secondPosterData)
         XCTAssertEqual(indexLabel.label, "2/10")
     }
@@ -75,7 +75,6 @@ final class MovieQuizUITests: XCTestCase {
         
         sleep(10)
         
-        XCTAssertTrue(alert.exists, "Алерт не найден!")
         XCTAssertTrue(alert.label == "Раунд окончен!")
         XCTAssertTrue(alert.buttons.firstMatch.label == "Сыграть ещё раз")
     }

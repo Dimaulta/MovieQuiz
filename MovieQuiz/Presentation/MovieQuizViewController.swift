@@ -1,11 +1,11 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController {
+final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol {
     
-    @IBOutlet var noButton: UIButton!
-    @IBOutlet var yesButton: UIButton!
+    @IBOutlet private var noButton: UIButton!
+    @IBOutlet private var yesButton: UIButton!
     
-    @IBOutlet var imageView: UIImageView!
+    @IBOutlet private var imageView: UIImageView!
     @IBOutlet private var textLabel: UILabel!
     @IBOutlet private var counterLabel: UILabel!
     
@@ -13,14 +13,12 @@ final class MovieQuizViewController: UIViewController {
     
     @IBOutlet private var activityIndicator: UIActivityIndicatorView!
     
-    var alertPresenter: AlertPresenter?
+    private var alertPresenter: AlertPresenter?
         
         private lazy var presenter = MovieQuizPresenter(viewController: self)
         
         override func viewDidLoad() {
             super.viewDidLoad()
-            presenter.viewController = self
-            
             setupNoButton()
             setupYesButton()
             setupLabels()
@@ -76,19 +74,34 @@ final class MovieQuizViewController: UIViewController {
             alertPresenter?.showAlert(model: model)
         }
         
-        func showAnswerResult(isCorrect: Bool) {
-            noButton.isEnabled = false
-            yesButton.isEnabled = false
-            
+        func highlightImageBorder(isCorrectAnswer: Bool) {
             imageView.layer.masksToBounds = true
             imageView.layer.borderWidth = 8
-            imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-                guard let self = self else { return }
-                self.imageView.layer.borderWidth = 0
-                self.presenter.showNextQuestionOrResults()
-            }
+            imageView.layer.borderColor = isCorrectAnswer ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
+        }
+        
+        func resetImageBorder() {
+            imageView.layer.borderWidth = 0
+        }
+        
+        func enableButtons() {
+            yesButton.isEnabled = true
+            noButton.isEnabled = true
+        }
+        
+        func disableButtons() {
+            yesButton.isEnabled = false
+            noButton.isEnabled = false
+        }
+        
+        func showAlert(model: AlertModel) {
+            alertPresenter?.showAlert(model: model)
+        }
+        
+        func show(quiz step: QuizStepViewModel) {
+            imageView.image = step.image
+            textLabel.text = step.question
+            counterLabel.text = step.questionNumber
         }
         
         private func setupLabels() {
@@ -114,11 +127,5 @@ final class MovieQuizViewController: UIViewController {
             yesButton.setTitleColor(UIColor(named: "YP Black"), for: .normal)
             yesButton.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 20)
             yesButton.layer.cornerRadius = 15
-        }
-        
-        func show(quiz step: QuizStepViewModel) {
-            imageView.image = step.image
-            textLabel.text = step.question
-            counterLabel.text = step.questionNumber
         }
     }
